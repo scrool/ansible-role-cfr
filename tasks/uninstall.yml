@@ -1,0 +1,33 @@
+---
+# uninstall tasks file for cfr
+- name: Remove executable
+  become: yes
+  file:
+    name: "{{ cfr_executable }}"
+    state: absent
+
+- name: Stat symlink
+  stat:
+    path: "{{ cfr_symlink_name }}"
+  register: before_uninstall
+
+- name: Remove artifact
+  become: yes
+  file:
+    path: "{{ before_uninstall.stat.lnk_source }}"
+    state: absent
+  when:
+    - before_uninstall.stat.lnk_source is defined
+    - before_uninstall.stat.lnk_source | length > 0
+
+- name: Remove symlink to jar
+  become: yes
+  file:
+    name: "{{ cfr_symlink_name }}"
+    state: absent
+
+- name: Remove install directory
+  become: yes
+  file:
+    path: "{{ cfr_install_dir }}"
+    state: absent

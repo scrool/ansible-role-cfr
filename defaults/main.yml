@@ -1,0 +1,10 @@
+---
+# defaults file for cfr
+# By default installs the program. Set to "absent" to uninstall.
+cfr_state: present
+
+# Version that will be installed. By default "latest".
+cfr_version: latest
+
+# Directory to which program will be installed.
+cfr_install_dir: /opt/cfr

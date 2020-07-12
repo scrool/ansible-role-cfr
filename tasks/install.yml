@@ -1,0 +1,57 @@
+---
+# install tasks file for cfr
+- name: Stat symlink
+  stat:
+    path: "{{ cfr_symlink_name }}"
+  register: before_install
+
+- name: Create CFR install directory
+  become: yes
+  file:
+    path: "{{ cfr_install_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download Maven artifact
+  become: yes
+  maven_artifact:
+    group_id: org.benf
+    artifact_id: cfr
+    dest: "{{ cfr_install_dir }}/"
+    repository_url: https://repo1.maven.org/maven2
+    keep_name: yes
+    version: "{{ cfr_version }}"
+  register: cfr_maven_install
+
+- name: Set mode of the artifact
+  become: yes
+  file:
+    path: "{{ cfr_maven_install.dest }}"
+    mode: "0444"
+
+- name: Symlink latest artefact
+  become: yes
+  file:
+    src: "{{ cfr_maven_install.dest | basename }}"
+    dest: "{{ cfr_symlink_name }}"
+    state: link
+  register: cfr_symlink
+
+- name: Remove old artifact
+  become: yes
+  file:
+    path: "{{ before_install.stat.lnk_source }}"
+    state: absent
+  ignore_errors: yes
+  when:
+    - before_install.stat.lnk_target is defined
+    - before_install.stat.lnk_target != cfr_symlink.src
+    - before_install.stat.lnk_source is defined
+    - before_install.stat.lnk_source | length > 0
+
+- name: Create executable for CFR
+  become: yes
+  template:
+    src: cfr.j2
+    dest: "{{ cfr_executable }}"
+    mode: "0555"

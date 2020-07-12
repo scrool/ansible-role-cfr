@@ -1,0 +1,14 @@
+---
+# tasks file for cfr
+- name: Fail if desired state is invalid
+  fail:
+    msg: State variable must be either "present" or "absent"
+  when: cfr_state not in ["present", "absent"]
+
+- name: Install tasks
+  include_tasks: install.yml
+  when: cfr_state == "present"
+
+- name: Uninstall tasks
+  include_tasks: uninstall.yml
+  when: cfr_state == "absent"

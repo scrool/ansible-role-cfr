@@ -1,0 +1,4 @@
+---
+# vars file for cfr
+cfr_executable: /usr/local/bin/cfr
+cfr_symlink_name: "{{ cfr_install_dir }}/cfr.jar"
